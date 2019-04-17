@@ -11,7 +11,7 @@ namespace fctn
             CheckArguments(args);
             string directory = args[0];
             string pattern = args[1];
-            string[] files = GetFilesRecursively(directory);
+            string[] files = GetFiles(directory);
             string[] filesContainingString = GetFilesContaining(pattern, files);
             PrintEachFile(filesContainingString);
         }
@@ -33,6 +33,7 @@ namespace fctn
         private static string[] GetFilesContaining(string pattern, string[] files)
         {
             List<string> list = new List<string>();
+            
             foreach (var file in files)
             {
                 string text = File.ReadAllText(file);
@@ -48,33 +49,31 @@ namespace fctn
         /**
          * Recursively gets all files from the given directory.
          */
-        private static string[] GetFilesRecursively(string directory)
+        private static string[] GetFiles(string directory)
         {
             List<string> files = new List<string>();
-            GetFilesRecursively(directory, files);           
+            List<string> directories = new List<string>();
+            directories.Add(directory);
+
+            while (directories.Count != 0)
+            {
+                string dir = directories[0];
+                directories.RemoveAt(0);
+                
+                foreach (var file in Directory.GetFiles(dir))
+                {
+                    files.Add(file);
+                }
+                
+                foreach (var subdir in Directory.GetDirectories(dir))
+                {
+                    directories.Add(subdir);
+                }
+                
+            }
+            
+            
             return files.ToArray();
-        }
-
-        private static void GetFilesRecursively(string directory, List<string> list)
-        {
-            if (Directory.Exists(directory))
-            {
-                foreach (var file in Directory.GetFiles(directory))
-                {
-                    list.Add(file);
-                }
-
-                foreach (var dir in Directory.GetDirectories(directory))
-                {
-                    GetFilesRecursively(dir, list);
-                }
-            }
-            else
-            {
-                string usageMessage = directory + " does not exist.";
-                Console.WriteLine(usageMessage);
-                Environment.Exit(1);
-            }
         }
 
 
