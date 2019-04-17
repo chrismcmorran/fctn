@@ -9,17 +9,17 @@ namespace fctn
         static void Main(string[] args)
         {
             CheckArguments(args);
-            string directory = args[0];
-            string pattern = args[1];
-            string[] files = GetFiles(directory);
-            string[] filesContainingString = GetFilesContaining(pattern, files);
+            var directory = args[0];
+            var pattern = args[1];
+            var files = GetFiles(directory);
+            var filesContainingString = GetFilesContaining(pattern, files);
             PrintEachFile(filesContainingString);
         }
 
         /**
          * Prints the relative path of each file in the parameterized array.
          */
-        private static void PrintEachFile(string[] filesContainingString)
+        private static void PrintEachFile(IEnumerable<string> filesContainingString)
         {
             foreach (var file in filesContainingString)
             {
@@ -30,10 +30,10 @@ namespace fctn
         /**
          * Gets files containing the goven pattern.
          */
-        private static string[] GetFilesContaining(string pattern, string[] files)
+        private static string[] GetFilesContaining(string pattern, IEnumerable<string> files)
         {
             List<string> list = new List<string>();
-            
+
             foreach (var file in files)
             {
                 string text = File.ReadAllText(file);
@@ -51,28 +51,19 @@ namespace fctn
          */
         private static string[] GetFiles(string directory)
         {
-            List<string> files = new List<string>();
-            List<string> directories = new List<string>();
-            directories.Add(directory);
+            var files = new List<string>();
+            var directories = new List<string> {directory};
 
             while (directories.Count != 0)
             {
-                string dir = directories[0];
+                var dir = directories[0];
                 directories.RemoveAt(0);
-                
-                foreach (var file in Directory.GetFiles(dir))
-                {
-                    files.Add(file);
-                }
-                
-                foreach (var subdir in Directory.GetDirectories(dir))
-                {
-                    directories.Add(subdir);
-                }
-                
+
+                files.AddRange(Directory.GetFiles(dir));
+                directories.AddRange(Directory.GetDirectories(dir));
             }
-            
-            
+
+
             return files.ToArray();
         }
 
@@ -85,7 +76,8 @@ namespace fctn
         {
             if (args.Length < 1)
             {
-                string usageMessage = "Usage: " + System.AppDomain.CurrentDomain.FriendlyName + " /path/to/directory string_to_find";
+                string usageMessage = "Usage: " + System.AppDomain.CurrentDomain.FriendlyName +
+                                      " /path/to/directory string_to_find";
                 Console.WriteLine(usageMessage);
                 Environment.Exit(1);
             }
