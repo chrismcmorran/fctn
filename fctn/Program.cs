@@ -9,8 +9,8 @@ namespace fctn
         static void Main(string[] args)
         {
             CheckArguments(args);
-            var directory = args[0];
-            var pattern = args[1];
+            var directory = (args.Length == 1) ? "." : args[0];
+            var pattern = (args.Length == 1) ?  args[0] : args[1];
             var files = GetFiles(directory);
             var filesContainingString = GetFilesContaining(pattern, files);
             PrintEachFile(filesContainingString);
